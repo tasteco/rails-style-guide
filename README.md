@@ -48,6 +48,7 @@ programming resources.
 * [Migrations](#migrations)
 * [Views](#views)
 * [Internationalization](#internationalization)
+* [Timezones](#timezones)
 * [Assets](#assets)
 * [Mailers](#mailers)
 * [Bundler](#bundler)
@@ -699,6 +700,40 @@ programming resources.
   More detailed information about the Rails i18n can be found in the [Rails
   Guides](http://guides.rubyonrails.org/i18n.html)
 <sup>[[link](#i18n-guides)]</sup>
+
+## Timezones
+
+* <a name="date-current"></a>
+  Use `Date.current` instead of `Date.today` because `Date.today` ignores the system timezone.
+
+* <a name="time-current"></a>
+  Use `Time.current` instead of `Time.now` because `Time.now` ignores the system timezone.
+
+* <a name="timezone-cheat-sheet"></a>
+  This cheat sheet is copied from http://www.elabs.se/blog/36-working-with-time-zones-in-ruby-on-rails
+
+DO USE:
+```
+2.hours.ago # => Fri, 02 Mar 2012 20:04:47 JST +09:00
+1.day.from_now # => Fri, 03 Mar 2012 22:04:47 JST +09:00
+Date.today.to_time_in_current_zone # => Fri, 02 Mar 2012 22:04:47 JST +09:00
+Date.current # => Fri, 02 Mar
+Time.zone.parse("2012-03-02 16:05:37") # => Fri, 02 Mar 2012 16:05:37 JST +09:00
+Time.zone.now # => Fri, 02 Mar 2012 22:04:47 JST +09:00
+Time.current # Same thing but shorter. (Thank you Lukas Sarnacki pointing this out.)
+Time.zone.today # If you really can't have a Time or DateTime for some reason
+Time.zone.now.utc.iso8601 # When supliyng an API (you can actually skip .zone here, but I find it better to always use it, than miss it when it's needed)
+Time.strptime(time_string, '%Y-%m-%dT%H:%M:%S%z').in_time_zone(Time.zone) # If you can't use Time#parse
+```
+
+DON'T USE:
+```
+Time.now # => Returns system time and ignores your configured time zone.
+Time.parse("2012-03-02 16:05:37") # => Will assume time string given is in the system's time zone.
+Time.strptime(time_string, '%Y-%m-%dT%H:%M:%S%z') # Same problem as with Time#parse.
+Date.today # This could be yesterday or tomorrow depending on the machine's time zone.
+Date.today.to_time # => # Still not the configured time zone.
+```
 
 ## Assets
 
